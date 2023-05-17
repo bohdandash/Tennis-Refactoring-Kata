@@ -2,10 +2,23 @@ namespace Tennis
 {
     public class TennisGame1 : ITennisGame
     {
+        private const int MaxScoreForDeuce = 3;
+        private const string Deuce = "Deuce";
+        private const string Advantage = "Advantage";
+        private const string Win = "Win for";
+        private const string All = "-All";
+        private const string Separator = "-";
+        private const string Love = "Love";
+        private const string Fifteen = "Fifteen";
+        private const string Thirty = "Thirty";
+        private const string Forty = "Forty";
+
         private int m_score1 = 0;
         private int m_score2 = 0;
         private string player1Name;
         private string player2Name;
+
+        private readonly string[] scoreDescriptions = { Love, Fifteen, Thirty, Forty };
 
         public TennisGame1(string player1Name, string player2Name)
         {
@@ -16,67 +29,64 @@ namespace Tennis
         public void WonPoint(string playerName)
         {
             if (playerName == "player1")
-                m_score1 += 1;
+                m_score1++;
             else
-                m_score2 += 1;
+                m_score2++;
         }
 
         public string GetScore()
         {
-            string score = "";
-            var tempScore = 0;
             if (m_score1 == m_score2)
             {
-                switch (m_score1)
-                {
-                    case 0:
-                        score = "Love-All";
-                        break;
-                    case 1:
-                        score = "Fifteen-All";
-                        break;
-                    case 2:
-                        score = "Thirty-All";
-                        break;
-                    default:
-                        score = "Deuce";
-                        break;
-
-                }
+                return GetEqualScore();
             }
             else if (m_score1 >= 4 || m_score2 >= 4)
             {
-                var minusResult = m_score1 - m_score2;
-                if (minusResult == 1) score = "Advantage player1";
-                else if (minusResult == -1) score = "Advantage player2";
-                else if (minusResult >= 2) score = "Win for player1";
-                else score = "Win for player2";
+                return GetAdvantageOrWinScore();
             }
             else
             {
-                for (var i = 1; i < 3; i++)
-                {
-                    if (i == 1) tempScore = m_score1;
-                    else { score += "-"; tempScore = m_score2; }
-                    switch (tempScore)
-                    {
-                        case 0:
-                            score += "Love";
-                            break;
-                        case 1:
-                            score += "Fifteen";
-                            break;
-                        case 2:
-                            score += "Thirty";
-                            break;
-                        case 3:
-                            score += "Forty";
-                            break;
-                    }
-                }
+                return GetNonEqualScore();
             }
-            return score;
+        }
+
+        private string GetEqualScore()
+        {
+            if (m_score1 < MaxScoreForDeuce)
+            {
+                return scoreDescriptions[m_score1] + All;
+            }
+            else
+            {
+                return Deuce;
+            }
+        }
+
+        private string GetAdvantageOrWinScore()
+        {
+            var minusResult = m_score1 - m_score2;
+            if (minusResult == 1)
+            {
+                return Advantage + " " + player1Name;
+            }
+            else if (minusResult == -1)
+            {
+                return Advantage + " " + player2Name;
+            }
+            else if (minusResult >= 2)
+            {
+                return Win + " " + player1Name;
+            }
+            else
+            {
+                return Win + " " + player2Name;
+            }
+        }
+
+        private string GetNonEqualScore()
+        {
+            return scoreDescriptions[m_score1] + Separator + scoreDescriptions[m_score2];
         }
     }
-}
 
+}
