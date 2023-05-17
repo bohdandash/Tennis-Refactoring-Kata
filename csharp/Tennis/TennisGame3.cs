@@ -2,11 +2,15 @@ namespace Tennis
 {
     public class TennisGame3 : ITennisGame
     {
-        private int player2Points;
         private int player1Points;
+        private int player2Points;
         private string player1Name;
         private string player2Name;
-        public static readonly string[] POINTS_NAMES = new[] { "Love", "Fifteen", "Thirty", "Forty" };
+
+        public static readonly string[] POINTS_NAMES = { "Love", "Fifteen", "Thirty", "Forty" };
+        public const string DEUCE = "Deuce";
+        public const string ADVANTAGE_PREFIX = "Advantage ";
+        public const string WIN_PREFIX = "Win for ";
 
         public TennisGame3(string player1Name, string player2Name)
         {
@@ -16,36 +20,66 @@ namespace Tennis
 
         public string GetScore()
         {
-            var isNotYetEndgame = (player1Points < 4 && player2Points < 4) && (player1Points + player2Points < 6);
-            if (isNotYetEndgame)
+            if (IsNotYetEndgame())
             {
-                var score = POINTS_NAMES[player1Points];
-                if (player1Points == player2Points)
-                    return score + "-All";
-                else
-                    return score + "-" + POINTS_NAMES[player2Points];
+                return GetRegularScore();
             }
             else
             {
                 if (player1Points == player2Points)
-                    return "Deuce";
-                var leader = player1Points > player2Points ? player1Name : player2Name;
-                var pointsDifferenceIsOne = (player1Points - player2Points) * (player1Points - player2Points) == 1;
-                if (pointsDifferenceIsOne)
-                    return "Advantage " + leader;
+                {
+                    return DEUCE;
+                }
                 else
-                    return "Win for " + leader;
+                {
+                    string leader = player1Points > player2Points ? player1Name : player2Name;
+                    return GetAdvantageOrWinScore(leader);
+                }
+            }
+        }
+
+        private bool IsNotYetEndgame()
+        {
+            return (player1Points < 4 && player2Points < 4) && (player1Points + player2Points < 6);
+        }
+
+        private string GetRegularScore()
+        {
+            if (player1Points == player2Points)
+            {
+                return POINTS_NAMES[player1Points] + "-All";
+            }
+            else
+            {
+                return POINTS_NAMES[player1Points] + "-" + POINTS_NAMES[player2Points];
+            }
+        }
+
+        private string GetAdvantageOrWinScore(string leader)
+        {
+            int pointDifference = player1Points - player2Points;
+            bool isAdvantage = pointDifference * pointDifference == 1;
+            if (isAdvantage)
+            {
+                return ADVANTAGE_PREFIX + leader;
+            }
+            else
+            {
+                return WIN_PREFIX + leader;
             }
         }
 
         public void WonPoint(string playerName)
         {
             if (playerName == "player1")
-                this.player1Points += 1;
+            {
+                player1Points += 1;
+            }
             else
-                this.player2Points += 1;
+            {
+                player2Points += 1;
+            }
         }
-
     }
 }
 
